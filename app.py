@@ -29,19 +29,32 @@ def register():
     pdf_path = create_pass_pdf(name, company)
 
     try:
-        send_email_with_pass(email, pdf_path)
+        send_email_with_pass(email, pdf_path, name, company, phone)
         return jsonify({'message': 'Registration successful! Pass sent via email.'})
     except Exception as e:
         traceback.print_exc()
         return jsonify({'message': f'Failed to send email: {str(e)}'}), 500
-
-def send_email_with_pass(recipient_email, pdf_path):
+def send_email_with_pass(recipient_email, pdf_path, name, company, phone):
     msg = EmailMessage()
     msg['Subject'] = 'Your APIT Global Launch Pass'
     msg['From'] = EMAIL_USER
     msg['To'] = recipient_email
-    msg.set_content('Thank you for registering. Please find your digital pass attached.')
 
+    # Custom message body
+    msg.set_content(f"""\
+Thank you for registering. Please find your digital pass attached for the below mentioned details shared by you.
+
+Our Executive will soon connect with you.
+
+👤 Name: {name}
+🏢 Company: {company}
+📞 Contact: {phone}
+
+Warm regards,  
+APIT Management Team
+""")
+
+    # Attach the PDF
     with open(pdf_path, 'rb') as f:
         file_data = f.read()
         msg.add_attachment(file_data, maintype='application', subtype='pdf', filename='APIT-Digital-Pass.pdf')
@@ -54,9 +67,12 @@ def send_email_with_pass(recipient_email, pdf_path):
 
 
 
+
 @app.route('/send-travel-plan', methods=['POST'])
 def send_travel_plan():
     data = request.get_json()
+    name = data.get("name")
+    contact = data.get("contact")
     arrival_date = data.get('arrival_date')
     arrival_time = data.get('arrival_time') or "Not specified"
     departure_date = data.get('departure_date')
@@ -68,6 +84,8 @@ def send_travel_plan():
 
     message = (
         "New Travel Plan Submission:\n\n"
+        f"Name: {name}\n"
+        f"Contact: {contact}\n"
         f"Date of Arrival: {arrival_date} at {arrival_time}\n"
         f"Date of Departure: {departure_date} at {departure_time}\n"
         f"Coming From: {from_place}\n"
