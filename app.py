@@ -50,7 +50,7 @@ We are delighted to confirm your successful registration as a delegated particip
 
 It is a great honor to welcome you to this historic occasion, where the world’s most advanced rice processing technologies will be unveiled. Your participation is highly valued, and we are confident that this event will be insightful and impactful for all industry stakeholders.
 
-Should you require any assistance with travel, accommodation, or event-specific details, our coordination team is readily available to support you. Please feel free to reach out to us at 9845015791, and we’ll be glad to help.
+Should you require any assistance with travel, accommodation, or event-specific details, our coordination team is readily available to support you. Please feel free to reach out to us at 9606922348, and we’ll be glad to help.
 
 We look forward to hosting you at Grain Revolution – a landmark moment in the future of rice processing.
 
