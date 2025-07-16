@@ -1,4 +1,3 @@
-
 from dotenv import load_dotenv
 load_dotenv()
 import os
@@ -15,28 +14,43 @@ CORS(app)
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
 
-print(f"Loaded EMAIL_USER: {EMAIL_USER}")
-print("EMAIL_PASS is loaded:", bool(EMAIL_PASS))
 @app.route('/')
 def home():
     return "✅ Launch Event Backend is Running"
+
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
 
+    # Extract all form fields
     name = data.get('name')
     email = data.get('email')
     company = data.get('company')
     phone = data.get('phone')
+    arrival_date = data.get('arrival_date')
+    arrival_time = data.get('arrival_time')
+    departure_date = data.get('departure_date')
+    departure_time = data.get('departure_time')
+    from_place = data.get('from_place')
+    accompanying = data.get('accompanying')
+    mode = data.get('mode')
+    meal = data.get('meal')
 
+    # Generate digital pass PDF
     pdf_path = create_pass_pdf(name, company)
 
     try:
         send_email_with_pass(email, pdf_path, name)
-        return jsonify({'message': 'Registration successful! Invitation has been emailed.'})
+        send_admin_summary_email(
+            name, email, phone, company,
+            arrival_date, arrival_time,
+            departure_date, departure_time,
+            from_place, accompanying, mode, meal
+        )
+        return jsonify({'message': '✅ Registration successful! Pass has been emailed.'})
     except Exception as e:
         traceback.print_exc()
-        return jsonify({'message': f'Failed to send email: {str(e)}'}), 500
+        return jsonify({'message': f'❌ Failed to send email: {str(e)}'}), 500
 
 def send_email_with_pass(recipient_email, pdf_path, name):
     msg = EmailMessage()
@@ -63,8 +77,7 @@ APIT Machinery Pvt. Ltd.
 """)
 
     with open(pdf_path, 'rb') as f:
-        file_data = f.read()
-        msg.add_attachment(file_data, maintype='application', subtype='pdf', filename='APIT-Digital-Pass.pdf')
+        msg.add_attachment(f.read(), maintype='application', subtype='pdf', filename='APIT-Digital-Pass.pdf')
 
     with smtplib.SMTP('smtp.office365.com', 587) as smtp:
         smtp.starttls()
@@ -72,6 +85,36 @@ APIT Machinery Pvt. Ltd.
         smtp.send_message(msg)
         print(f"✅ Email sent to {recipient_email}")
 
+def send_admin_summary_email(name, email, phone, company,
+                              arrival_date, arrival_time,
+                              departure_date, departure_time,
+                              from_place, accompanying, mode, meal):
+    msg = EmailMessage()
+    msg['Subject'] = f'📩 New Registration – {name}'
+    msg['From'] = EMAIL_USER
+    msg['To'] = EMAIL_USER  # sent to admin
+
+    msg.set_content(f"""New Registration Received:
+
+👤 Name: {name}
+📧 Email: {email}
+📞 Phone: {phone}
+🏢 Company: {company}
+
+🛬 Arrival: {arrival_date} at {arrival_time}
+🛫 Departure: {departure_date} at {departure_time}
+🌍 From: {from_place}
+👥 Accompanying: {accompanying}
+🚗 Travel Mode: {mode}
+🍽️ Meal Preference: {meal}
+""")
+
+    with smtplib.SMTP('smtp.office365.com', 587) as smtp:
+        smtp.starttls()
+        smtp.login(EMAIL_USER, EMAIL_PASS)
+        smtp.send_message(msg)
+        print("📨 Admin summary email sent")
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Render provides this in env
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
