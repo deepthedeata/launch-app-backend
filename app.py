@@ -72,6 +72,6 @@ APIT Machinery Pvt. Ltd.
         smtp.send_message(msg)
         print(f"✅ Email sent to {recipient_email}")
 
-
-if __name__ == '__main__':
-    app.run(debug=False)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Render provides this in env
+    app.run(host="0.0.0.0", port=port)
