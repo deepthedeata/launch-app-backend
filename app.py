@@ -17,7 +17,9 @@ EMAIL_PASS = os.getenv("EMAIL_PASS")
 
 print(f"Loaded EMAIL_USER: {EMAIL_USER}")
 print("EMAIL_PASS is loaded:", bool(EMAIL_PASS))
-
+@app.route('/')
+def home():
+    return "✅ Launch Event Backend is Running"
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
