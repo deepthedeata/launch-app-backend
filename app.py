@@ -20,26 +20,27 @@ def home():
 
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
-
-    # Extract all form fields
-    name = data.get('name')
-    email = data.get('email')
-    company = data.get('company')
-    phone = data.get('phone')
-    arrival_date = data.get('arrival_date')
-    arrival_time = data.get('arrival_time')
-    departure_date = data.get('departure_date')
-    departure_time = data.get('departure_time')
-    from_place = data.get('from_place')
-    accompanying = data.get('accompanying')
-    mode = data.get('mode')
-    meal = data.get('meal')
-
-    # Generate digital pass PDF
-    pdf_path = create_pass_pdf(name, company)
-
     try:
+        data = request.get_json()
+        print("📩 Received data:", data)
+
+        # Extract all form fields
+        name = data.get('name')
+        email = data.get('email')
+        company = data.get('company')
+        phone = data.get('phone')
+        arrival_date = data.get('arrival_date')
+        arrival_time = data.get('arrival_time')
+        departure_date = data.get('departure_date')
+        departure_time = data.get('departure_time')
+        from_place = data.get('from_place')
+        accompanying = data.get('accompanying')
+        mode = data.get('mode')
+        meal = data.get('meal')
+
+        # Generate digital pass PDF
+        pdf_path = create_pass_pdf(name, company)
+
         send_email_with_pass(email, pdf_path, name)
         send_admin_summary_email(
             name, email, phone, company,
@@ -47,10 +48,14 @@ def register():
             departure_date, departure_time,
             from_place, accompanying, mode, meal
         )
+
+        print("✅ All emails sent successfully.")
         return jsonify({'message': '✅ Registration successful! Pass has been emailed.'})
+
     except Exception as e:
+        print("❌ Error occurred:", str(e))
         traceback.print_exc()
-        return jsonify({'message': f'❌ Failed to send email: {str(e)}'}), 500
+        return jsonify({'message': f'❌ Failed to process registration: {str(e)}'}), 500
 
 def send_email_with_pass(recipient_email, pdf_path, name):
     msg = EmailMessage()
