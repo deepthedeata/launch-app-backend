@@ -14,7 +14,7 @@ from datetime import datetime
 
 # === Google Sheets Config ===
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-SPREADSHEET_ID = 'https://docs.google.com/spreadsheets/d/1PmqnERcK5AncJtUtAWqW576xxcO1pVbpXtR81tNAep4/edit?gid=0#gid=0'  # Replace with your actual sheet ID
+SPREADSHEET_ID = '1PmqnERcK5AncJtUtAWqW576xxcO1pVbpXtR81tNAep4'  # Cleaned sheet ID
 SHEET_NAME = 'Sheet1'
 
 def append_to_sheet(row_data):
@@ -40,7 +40,6 @@ def register():
         data = request.get_json()
         print("📩 Received data:", data)
 
-        # Extract all form fields
         name = data.get('name')
         email = data.get('email')
         company = data.get('company')
@@ -54,7 +53,6 @@ def register():
         mode = data.get('mode')
         meal = data.get('meal')
 
-        # Generate digital pass PDF
         pdf_path = create_pass_pdf(name, company)
 
         send_email_with_pass(email, pdf_path, name)
@@ -65,7 +63,6 @@ def register():
             from_place, accompanying, mode, meal
         )
 
-        # Log to spreadsheet
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         row_data = [
             timestamp, name, email, phone, company,
@@ -123,7 +120,7 @@ def send_admin_summary_email(name, email, phone, company,
     msg = EmailMessage()
     msg['Subject'] = f'📩 New Registration – {name}'
     msg['From'] = EMAIL_USER
-    msg['To'] = EMAIL_USER  # sent to admin
+    msg['To'] = EMAIL_USER
 
     msg.set_content(f"""New Registration Received:
 
