@@ -8,8 +8,24 @@ from generate_pass import create_pass_pdf
 import smtplib
 from email.message import EmailMessage
 
+import gspread
+from google.oauth2.service_account import Credentials
+from datetime import datetime
+
+# === Google Sheets Config ===
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+SPREADSHEET_ID = 'https://docs.google.com/spreadsheets/d/1PmqnERcK5AncJtUtAWqW576xxcO1pVbpXtR81tNAep4/edit?gid=0#gid=0'  # Replace with your actual sheet ID
+SHEET_NAME = 'Sheet1'
+
+def append_to_sheet(row_data):
+    creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
+    client = gspread.authorize(creds)
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
+    sheet.append_row(row_data)
+
+# === Flask App ===
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # ✅ Allow all origins
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
@@ -49,7 +65,17 @@ def register():
             from_place, accompanying, mode, meal
         )
 
-        print("✅ All emails sent successfully.")
+        # Log to spreadsheet
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        row_data = [
+            timestamp, name, email, phone, company,
+            arrival_date, arrival_time,
+            departure_date, departure_time,
+            from_place, accompanying, mode, meal
+        ]
+        append_to_sheet(row_data)
+
+        print("✅ All emails and spreadsheet update done.")
         return jsonify({'message': '✅ Registration successful! Pass has been emailed.'})
 
     except Exception as e:
