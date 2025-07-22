@@ -18,7 +18,7 @@ SPREADSHEET_ID = 'https://docs.google.com/spreadsheets/d/1PmqnERcK5AncJtUtAWqW57
 SHEET_NAME = 'Sheet1'
 
 def append_to_sheet(row_data):
-    creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
+    creds = Credentials.from_service_account_file("/etc/secrets/credentials.json", scopes=SCOPES)
     client = gspread.authorize(creds)
     sheet = client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
     sheet.append_row(row_data)
