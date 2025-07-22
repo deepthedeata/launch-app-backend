@@ -9,7 +9,7 @@ import smtplib
 from email.message import EmailMessage
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})  # ✅ Allow all origins
 
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
